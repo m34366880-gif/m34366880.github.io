@@ -160,6 +160,45 @@ def list_vips() -> List[sqlite3.Row]:
     conn.close()
     return rows
 
+def list_users(limit: Optional[int] = None) -> List[sqlite3.Row]:
+    """Return users with basic fields for listing."""
+    conn = get_db()
+    cur = conn.cursor()
+    base_sql = "SELECT user_id, username, is_vip, vip_until FROM users ORDER BY user_id DESC"
+    if limit is not None:
+        cur.execute(f"{base_sql} LIMIT ?", (int(limit),))
+    else:
+        cur.execute(base_sql)
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
+def count_users() -> int:
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT COUNT(*) FROM users")
+    count = cur.fetchone()[0]
+    conn.close()
+    return int(count)
+
+def get_all_user_ids(exclude_banned: bool = True) -> List[int]:
+    conn = get_db()
+    cur = conn.cursor()
+    if exclude_banned:
+        cur.execute(
+            """
+            SELECT u.user_id
+            FROM users u
+            WHERE NOT EXISTS (SELECT 1 FROM bans b WHERE b.user_id = u.user_id)
+            ORDER BY u.user_id ASC
+            """
+        )
+    else:
+        cur.execute("SELECT user_id FROM users ORDER BY user_id ASC")
+    ids = [int(r[0]) for r in cur.fetchall()]
+    conn.close()
+    return ids
+
 
 def save_invoice(invoice_id: str, user_id: int, status: str, asset: str, amount: float) -> None:
     conn = get_db()
@@ -410,6 +449,8 @@ def admin_kb() -> InlineKeyboardMarkup:
     kb.button(text="📜 Логи", callback_data="admin:logs")
     kb.button(text="👑 Снять VIP", callback_data="admin:revokevip")
     kb.button(text="👑 Выдать VIP", callback_data="admin:grantvip")
+    kb.button(text="📢 Рассылка", callback_data="admin:broadcast")
+    kb.button(text="👥 Пользователи", callback_data="admin:users")
     kb.adjust(2)
     return kb.as_markup()
 
@@ -431,6 +472,7 @@ class AdminStates(StatesGroup):
     revoke_vip_target = State()
     grant_vip_target = State()
     logs_target = State()
+    broadcast_message = State()
 
 
 # === Middleware ===
@@ -446,6 +488,12 @@ class BanMiddleware(BaseMiddleware):
             if event.from_user:
                 user_id = event.from_user.id
                 username = event.from_user.username
+        # Track interacting users so we can broadcast later
+        if user_id is not None:
+            try:
+                upsert_user(int(user_id), username)
+            except Exception:
+                pass
         # Allow admin always
         if user_id is not None and is_admin_id(user_id, username):
             return await handler(event, data)
@@ -686,8 +734,10 @@ async def admin(message: Message) -> None:
         return
     total_vips = len(list_vips())
     total_banned = count_banned()
+    total_users = count_users()
     await message.answer(
         "<b>🛡️ Админ-панель</b>\n"
+        f"👥 Всего пользователей: <b>{total_users}</b>\n"
         f"👑 VIP пользователей: <b>{total_vips}</b>\n"
         f"🚫 Забанено: <b>{total_banned}</b>\n\n"
         "Команды:\n"
@@ -696,7 +746,9 @@ async def admin(message: Message) -> None:
         "• /ban <code>user_id|@username</code> [reason] — бан\n"
         "• /unban <code>user_id|@username</code> — разбан\n"
         "• /user_info <code>user_id|@username</code> — информация\n"
-        "• /logs [user_id|@username] [limit] — логи\n",
+        "• /logs [user_id|@username] [limit] — логи\n"
+        "• /broadcast <code>text</code> — рассылка всем\n"
+        "• /users [limit] — список пользователей\n",
         reply_markup=admin_kb(),
     )
     log_event(message.from_user.id, "admin_open", None)
@@ -708,8 +760,10 @@ async def admin_open_cb(cb: CallbackQuery) -> None:
         return
     total_vips = len(list_vips())
     total_banned = count_banned()
+    total_users = count_users()
     await cb.message.answer(
         "<b>🛡️ Админ-панель</b>\n"
+        f"👥 Всего пользователей: <b>{total_users}</b>\n"
         f"👑 VIP пользователей: <b>{total_vips}</b>\n"
         f"🚫 Забанено: <b>{total_banned}</b>",
         reply_markup=admin_kb(),
@@ -740,6 +794,13 @@ async def admin_panel_actions(cb: CallbackQuery, state: FSMContext) -> None:
     elif action == "logs":
         await state.set_state(AdminStates.logs_target)
         await cb.message.answer("Введите user_id или @username и лимит (необязательно). Пример: <code>@user 30</code> или <code>all 50</code>")
+    elif action == "broadcast":
+        await state.set_state(AdminStates.broadcast_message)
+        await cb.message.answer("Введите текст рассылки. Будет отправлен всем, кто писал боту.\nМожно использовать HTML разметку.")
+    elif action == "users":
+        total = count_users()
+        vips = len(list_vips())
+        await cb.message.answer(f"Всего пользователей: <b>{total}</b> (VIP: <b>{vips}</b>)\nОтправьте <code>/users [limit]</code> чтобы получить список или нажмите /users без параметров.")
     await cb.answer()
 
 
@@ -866,6 +927,31 @@ async def admin_logs_process(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
+@dp.message(StateFilter(AdminStates.broadcast_message))
+async def admin_broadcast_process(message: Message, state: FSMContext) -> None:
+    text = (message.text or "").strip()
+    if not text:
+        await message.answer("Текст пуст. Отправьте сообщение для рассылки или /cancel")
+        return
+    user_ids = get_all_user_ids(exclude_banned=True)
+    sent = 0
+    failed = 0
+    await message.answer(f"Начинаю рассылку {len(user_ids)} пользователям…")
+    for uid in user_ids:
+        try:
+            await bot.send_message(uid, text, disable_web_page_preview=True)
+            sent += 1
+            # avoid hitting flood limits
+            await asyncio.sleep(0.03)
+        except Exception as e:
+            failed += 1
+            await asyncio.sleep(0.03)
+            continue
+    log_event(message.from_user.id, "admin_broadcast", f"sent={sent}; failed={failed}")
+    await message.answer(f"Рассылка завершена. Успешно: <b>{sent}</b>, Ошибок: <b>{failed}</b>.")
+    await state.clear()
+
+
 # === Admin commands (slash) ===
 @dp.message(Command("grant_vip"))
 async def grant_vip_cmd(message: Message, command: CommandObject) -> None:
@@ -983,6 +1069,59 @@ async def logs_cmd(message: Message, command: CommandObject) -> None:
         result = result[:3500] + "\n…"
     await message.answer(result)
     log_event(message.from_user.id, "admin_logs_cmd", f"uid={uid}; limit={limit}")
+
+
+# === New admin commands ===
+@dp.message(Command("broadcast"))
+async def broadcast_cmd(message: Message, command: CommandObject) -> None:
+    if not is_admin(message):
+        return
+    text = (command.args or "").strip()
+    if not text:
+        await message.answer("Формат: /broadcast <code>text</code>")
+        return
+    user_ids = get_all_user_ids(exclude_banned=True)
+    sent = 0
+    failed = 0
+    await message.answer(f"Начинаю рассылку {len(user_ids)} пользователям…")
+    for uid in user_ids:
+        try:
+            await bot.send_message(uid, text, disable_web_page_preview=True)
+            sent += 1
+            await asyncio.sleep(0.03)
+        except Exception:
+            failed += 1
+            await asyncio.sleep(0.03)
+    log_event(message.from_user.id, "admin_broadcast_cmd", f"sent={sent}; failed={failed}")
+    await message.answer(f"Готово. Успешно: <b>{sent}</b>, Ошибок: <b>{failed}</b>.")
+
+
+@dp.message(Command("users"))
+async def users_cmd(message: Message, command: CommandObject) -> None:
+    if not is_admin(message):
+        return
+    limit: Optional[int] = None
+    args = (command.args or "").strip()
+    if args and args.isdigit():
+        limit = int(args)
+    rows = list_users(limit=limit)
+    if not rows:
+        await message.answer("Пользователи не найдены")
+        return
+    lines: List[str] = []
+    now_ts = int(time.time())
+    for r in rows:
+        uid = r["user_id"]
+        uname = r["username"] or "—"
+        isvip = bool(r["is_vip"]) and (
+            r["vip_until"] is None or int(r["vip_until"]) > now_ts
+        )
+        status = "VIP" if isvip else "—"
+        lines.append(f"<code>{uid}</code> | @{uname} | {status}")
+    result = "\n".join(lines)
+    if len(result) > 3500:
+        result = result[:3500] + "\n…"
+    await message.answer(result)
 
 
 # === Main ===
