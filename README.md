@@ -1,20 +1,38 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# NFT Gifts Store (FastAPI)
 
-# Run and deploy your AI Studio app
+Простое приложение магазина NFT-подарков с интеграцией Telegram Bot API, админ-панелью (IP + Basic Auth), шаблонами и статикой.
 
-This contains everything you need to run your app locally.
+## Запуск
 
-View your app in AI Studio: https://ai.studio/apps/drive/1cx34-mm-mnfIPxVh6H4-M76VTsNGhyyI
+1) Создайте виртуальное окружение и установите зависимости:
 
-## Run Locally
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-**Prerequisites:**  Node.js
+2) Установите переменные окружения при необходимости:
 
+```bash
+export BOT_TOKEN="8494126901:AAE0fbTFsQosqG1YpoGjx9SkIM41PzB64RQ"
+export ADMIN_USERNAME=admin
+export ADMIN_PASSWORD=admin123
+export ADMIN_ALLOWED_IP=80.64.26.253
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+3) Запустите сервер:
+
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+4) Откройте:
+- Главная: http://localhost:8000/
+- Админ: http://localhost:8000/admin (доступ только с IP 80.64.26.253 и Basic Auth)
+- Telegram GIFs: http://localhost:8000/admin/telegram
+
+## Примечания
+- Для предпросмотра анимаций из Telegram отправьте вашему боту в диалог анимацию (GIF/animation). Страница `/admin/telegram` подтянет их через `getUpdates`. Если у бота настроен webhook, `getUpdates` вернёт пустой список.
+- Отправка подарка осуществляется методом `sendAnimation` в Telegram: укажите целевой `chat_id` (или `@username` для каналов/групп). Пользователь должен начать диалог с вашим ботом.
+- БД SQLite создаётся автоматически в файле `app.db`.

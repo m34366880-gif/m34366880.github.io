@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Магазин NFT-подарков</h1>
+  {% if success %}
+    <div class="alert success">Подарок отправлен!</div>
+  {% endif %}
+  {% if error %}
+    <div class="alert error">Произошла ошибка при отправке ({{ error }}).</div>
+  {% endif %}
+
+  {% if not gifts %}
+    <p>Пока нет подарков. Зайдите в админ-панель, чтобы добавить.</p>
+  {% else %}
+    <div class="grid">
+      {% for gift in gifts %}
+        <div class="card">
+          <div class="media">
+            {% if gift.telegram_file_id %}
+              <video src="/api/telegram/file/{{ gift.telegram_file_id }}" autoplay loop muted playsinline></video>
+            {% elif gift.gif_url %}
+              <img src="{{ gift.gif_url }}" alt="{{ gift.title }}" />
+            {% else %}
+              <div class="placeholder">Нет превью</div>
+            {% endif %}
+          </div>
+          <div class="content">
+            <h3>{{ gift.title }}</h3>
+            {% if gift.description %}<p>{{ gift.description }}</p>{% endif %}
+            {% if gift.price_cents %}
+              <div class="price">Цена: {{ '%.2f' % (gift.price_cents / 100.0) }} USD</div>
+            {% endif %}
+            <form method="post" action="/purchase/{{ gift.id }}" class="purchase-form">
+              <input type="text" name="recipient_chat_id" placeholder="chat_id или @username" required />
+              <input type="text" name="buyer_name" placeholder="Ваше имя (опционально)" />
+              <input type="text" name="message" placeholder="Сообщение получателю (опционально)" />
+              <button type="submit">Отправить подарок</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}

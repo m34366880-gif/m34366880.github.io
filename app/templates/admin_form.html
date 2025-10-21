@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>{{ 'Редактировать' if gift else 'Добавить' }} подарок</h1>
+  <form method="post" action="{{ '/admin/' ~ gift.id ~ '/edit' if gift else '/admin/new' }}" class="form">
+    <label>
+      Название
+      <input type="text" name="title" value="{{ gift.title if gift else '' }}" required />
+    </label>
+    <label>
+      Описание
+      <textarea name="description" rows="3">{{ gift.description if gift else '' }}</textarea>
+    </label>
+    <label>
+      Цена (в центах)
+      <input type="number" name="price_cents" value="{{ gift.price_cents if gift else 0 }}" min="0" />
+    </label>
+    <fieldset>
+      <legend>Медиа</legend>
+      <label>
+        GIF URL
+        <input type="url" name="gif_url" value="{{ gift.gif_url if gift else '' }}" />
+      </label>
+      <label>
+        Telegram file_id
+        <input type="text" name="telegram_file_id" value="{{ gift.telegram_file_id if gift else '' }}" />
+      </label>
+      <p class="hint">Укажите либо прямую ссылку на GIF, либо Telegram file_id. Приоритет у file_id.</p>
+      <p>
+        <a class="btn" href="/admin/telegram">Выбрать из Telegram</a>
+      </p>
+    </fieldset>
+    <div class="actions">
+      <button class="btn" type="submit">Сохранить</button>
+      <a class="btn secondary" href="/admin">Отмена</a>
+    </div>
+  </form>
+{% endblock %}
