@@ -1,5 +1,0 @@
-{
-  "name": "NexusOSINT: AI-Powered OSINT Browser",
-  "description": "A specialized browser interface for OSINT, cybersecurity, and deep data analysis. It visualizes entity relationships, aggregates data, and uses an AI module to generate comprehensive analytical reports on collected intelligence.",
-  "requestFramePermissions": []
-}
