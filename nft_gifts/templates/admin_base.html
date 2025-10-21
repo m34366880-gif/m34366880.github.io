@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Админ-панель{% endblock %} - NFT Gift Shop</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <h2>🎁 NFT Admin</h2>
+            </div>
+            <nav class="admin-nav">
+                <a href="/admin/dashboard" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Панель</span>
+                </a>
+                <a href="/admin/gifts" class="nav-item">
+                    <span class="nav-icon">🎁</span>
+                    <span class="nav-text">Подарки</span>
+                </a>
+                <a href="/admin/users" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">Пользователи</span>
+                </a>
+                <a href="/admin/purchases" class="nav-item">
+                    <span class="nav-icon">💳</span>
+                    <span class="nav-text">Покупки</span>
+                </a>
+                <hr>
+                <a href="/" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">На сайт</span>
+                </a>
+                <a href="/admin/logout" class="nav-item">
+                    <span class="nav-icon">🚪</span>
+                    <span class="nav-text">Выход</span>
+                </a>
+            </nav>
+        </aside>
+        
+        <main class="admin-main">
+            <div class="admin-content">
+                {% block admin_content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

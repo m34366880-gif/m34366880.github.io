@@ -1,0 +1,38 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Пользователи{% endblock %}
+
+{% block admin_content %}
+<h1>👥 Пользователи</h1>
+
+{% if users %}
+<div class="table-container">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Telegram ID</th>
+                <th>Имя</th>
+                <th>Username</th>
+                <th>Дата регистрации</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>#{{ user.id }}</td>
+                <td><code>{{ user.telegram_id }}</code></td>
+                <td>{{ user.first_name }} {% if user.last_name %}{{ user.last_name }}{% endif %}</td>
+                <td>{% if user.username %}@{{ user.username }}{% else %}-{% endif %}</td>
+                <td>{{ user.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>Нет зарегистрированных пользователей</p>
+</div>
+{% endif %}
+{% endblock %}

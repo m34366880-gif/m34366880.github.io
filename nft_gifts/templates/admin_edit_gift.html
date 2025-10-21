@@ -1,0 +1,58 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Редактировать подарок{% endblock %}
+
+{% block admin_content %}
+<div class="page-header">
+    <h1>✏️ Редактировать подарок #{{ gift.id }}</h1>
+    <a href="/admin/gifts" class="btn btn-secondary">← Назад</a>
+</div>
+
+<div class="form-container">
+    <form method="post" action="/admin/gifts/edit/{{ gift.id }}" class="admin-form">
+        <div class="form-group">
+            <label for="title">Название <span class="required">*</span></label>
+            <input type="text" id="title" name="title" value="{{ gift.title }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Описание <span class="required">*</span></label>
+            <textarea id="description" name="description" rows="4" required>{{ gift.description }}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="gif_url">URL GIF-анимации <span class="required">*</span></label>
+            <input type="url" id="gif_url" name="gif_url" value="{{ gift.gif_url }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="file_id">Telegram File ID</label>
+            <input type="text" id="file_id" name="file_id" value="{{ gift.file_id or '' }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="price">Цена (TON) <span class="required">*</span></label>
+            <input type="number" id="price" name="price" step="0.01" min="0" value="{{ gift.price }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" name="is_active" value="true" {% if gift.is_active %}checked{% endif %}>
+                <span>Подарок активен и доступен для покупки</span>
+            </label>
+        </div>
+        
+        <div class="form-group">
+            <label>Текущая анимация:</label>
+            <div class="preview-image">
+                <img src="{{ gift.gif_url }}" alt="{{ gift.title }}">
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 Сохранить изменения</button>
+            <a href="/admin/gifts" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

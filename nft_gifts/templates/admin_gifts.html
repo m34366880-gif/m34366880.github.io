@@ -1,0 +1,61 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Управление подарками{% endblock %}
+
+{% block admin_content %}
+<div class="page-header">
+    <h1>🎁 Управление подарками</h1>
+    <a href="/admin/gifts/add" class="btn btn-primary">➕ Добавить подарок</a>
+</div>
+
+{% if gifts %}
+<div class="table-container">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Превью</th>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Цена</th>
+                <th>Статус</th>
+                <th>Дата создания</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for gift in gifts %}
+            <tr>
+                <td>#{{ gift.id }}</td>
+                <td>
+                    <img src="{{ gift.gif_url }}" alt="{{ gift.title }}" class="table-image">
+                </td>
+                <td><strong>{{ gift.title }}</strong></td>
+                <td>{{ gift.description[:50] }}{% if gift.description|length > 50 %}...{% endif %}</td>
+                <td>{{ gift.price }} TON</td>
+                <td>
+                    {% if gift.is_active %}
+                    <span class="badge badge-success">Активен</span>
+                    {% else %}
+                    <span class="badge badge-danger">Неактивен</span>
+                    {% endif %}
+                </td>
+                <td>{{ gift.created_at.strftime('%d.%m.%Y') }}</td>
+                <td class="actions">
+                    <a href="/admin/gifts/edit/{{ gift.id }}" class="btn btn-small btn-secondary">✏️ Изменить</a>
+                    <form method="post" action="/admin/gifts/delete/{{ gift.id }}" style="display: inline;">
+                        <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Удалить этот подарок?')">🗑️ Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>Нет добавленных подарков</p>
+    <a href="/admin/gifts/add" class="btn btn-primary">➕ Добавить первый подарок</a>
+</div>
+{% endif %}
+{% endblock %}

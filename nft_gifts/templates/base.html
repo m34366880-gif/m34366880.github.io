@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NFT Gift Shop{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">🎁 NFT Gift Shop</a>
+            <div class="nav-links">
+                <a href="/">Главная</a>
+                <a href="https://t.me/your_bot">Telegram Bot</a>
+                {% block nav_extra %}{% endblock %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 NFT Gift Shop. Все права защищены.</p>
+            <p>Отправляйте NFT подарки через Telegram!</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
