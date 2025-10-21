@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>GIF из Telegram</h1>
+  <p>Эта страница показывает последние анимации (GIF) из обновлений бота. Отправьте вашему боту анимацию в Telegram, затем обновите список.</p>
+  <div class="actions">
+    <button class="btn" onclick="loadGifs()">Обновить список</button>
+    <a class="btn secondary" href="/admin/new">Создать вручную</a>
+  </div>
+  <div id="gif-list" class="grid"></div>
+
+  <script>
+    async function loadGifs() {
+      const grid = document.getElementById('gif-list');
+      grid.innerHTML = '<div class="muted">Загрузка...</div>';
+      try {
+        const res = await fetch('/api/telegram/gifs');
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'Ошибка загрузки');
+        const gifs = data.gifs || [];
+        if (gifs.length === 0) {
+          grid.innerHTML = '<div class="muted">Пусто. Отправьте боту анимацию и повторите.</div>';
+          return;
+        }
+        grid.innerHTML = '';
+        for (const g of gifs) {
+          const card = document.createElement('div');
+          card.className = 'card';
+          const media = document.createElement('div');
+          media.className = 'media';
+          const video = document.createElement('video');
+          video.src = `/api/telegram/file/${g.file_id}`;
+          video.autoplay = true; video.loop = true; video.muted = true; video.playsInline = true;
+          media.appendChild(video);
+          const content = document.createElement('div');
+          content.className = 'content';
+          const h3 = document.createElement('h3');
+          h3.textContent = g.file_unique_id;
+          const btn = document.createElement('a');
+          btn.className = 'btn';
+          btn.textContent = 'Использовать';
+          btn.href = `/admin/new?telegram_file_id=${encodeURIComponent(g.file_id)}`;
+          content.appendChild(h3);
+          content.appendChild(btn);
+          card.appendChild(media);
+          card.appendChild(content);
+          grid.appendChild(card);
+        }
+      } catch (e) {
+        grid.innerHTML = `<div class="alert error">${e.message}</div>`;
+      }
+    }
+    loadGifs();
+  </script>
+{% endblock %}

@@ -1,0 +1,41 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif; color: #111; background: #fafafa; }
+.container { width: min(1100px, 92%); margin: 0 auto; }
+.site-header { background: #111; color: #fff; }
+.site-header .header-wrap { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; }
+.logo { color: #fff; text-decoration: none; font-weight: 700; }
+.site-header nav a { color: #ddd; margin-left: 16px; text-decoration: none; }
+.site-header nav a:hover { color: #fff; }
+.site-footer { padding: 32px 0; color: #666; }
+
+h1 { margin-top: 24px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 16px 0 32px; }
+.card { background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.card .media { aspect-ratio: 16 / 10; background: #f0f0f0; display: flex; align-items: center; justify-content: center; }
+.card .media img, .card .media video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card .content { padding: 12px; }
+.card h3 { margin: 4px 0 8px; font-size: 16px; }
+
+.table { border-collapse: collapse; width: 100%; background: #fff; border: 1px solid #e5e5e5; }
+.table th, .table td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+.table .media-cell { width: 220px; }
+.table .media-cell img, .table .media-cell video { width: 200px; height: 120px; object-fit: cover; }
+
+.form { display: grid; gap: 12px; max-width: 640px; }
+.form label { display: grid; gap: 6px; }
+.form input[type=text], .form input[type=url], .form input[type=number], .form textarea { padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; background: #fff; font: inherit; }
+
+.actions { margin: 12px 0; display: flex; gap: 8px; align-items: center; }
+.btn { display: inline-block; padding: 8px 12px; background: #111; color: #fff; border-radius: 6px; text-decoration: none; border: none; cursor: pointer; }
+.btn:hover { background: #333; }
+.btn.secondary { background: #666; }
+.btn.danger { background: #c62828; }
+
+.alert { padding: 10px 12px; border-radius: 6px; margin: 12px 0; }
+.alert.success { background: #e6f4ea; color: #1e7a34; }
+.alert.error { background: #fdecea; color: #9f3a38; }
+.muted { color: #777; }
+.placeholder { color: #888; }
+
+.purchase-form { display: grid; gap: 8px; }
+.price { font-weight: 600; margin-bottom: 8px; }

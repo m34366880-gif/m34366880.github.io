@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Админ-панель: Подарки</h1>
+  <div class="actions">
+    <a class="btn" href="/admin/new">Добавить</a>
+    <a class="btn" href="/admin/telegram">GIF из Telegram</a>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Превью</th>
+        <th>Название</th>
+        <th>Цена</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for g in gifts %}
+        <tr>
+          <td>{{ g.id }}</td>
+          <td class="media-cell">
+            {% if g.telegram_file_id %}
+              <video src="/api/telegram/file/{{ g.telegram_file_id }}" autoplay loop muted playsinline></video>
+            {% elif g.gif_url %}
+              <img src="{{ g.gif_url }}" alt="{{ g.title }}" />
+            {% else %}
+              <span class="muted">нет</span>
+            {% endif %}
+          </td>
+          <td>{{ g.title }}</td>
+          <td>{{ '%.2f' % (g.price_cents / 100.0) }}</td>
+          <td>
+            <a class="btn" href="/admin/{{ g.id }}/edit">Редактировать</a>
+            <form method="post" action="/admin/{{ g.id }}/delete" style="display:inline" onsubmit="return confirm('Удалить?')">
+              <button class="btn danger" type="submit">Удалить</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
