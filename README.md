@@ -1,20 +1,29 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+NFT Gifts Store — FastAPI + Telegram
 
-# Run and deploy your AI Studio app
+Запуск
+- Установите зависимости:
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -U pip wheel
+pip install -r requirements.txt
+```
+- Переменные окружения (при необходимости):
+  - `TELEGRAM_BOT_TOKEN` — токен бота (если не задан, используется токен из кода).
+  - `ADMIN_ALLOWED_IP` — IP с которого доступна админка (по умолчанию 80.64.26.253). Для локального теста можно выставить `DISABLE_ADMIN_IP_CHECK=1`.
+  - `ADMIN_USER` / `ADMIN_PASS` — логин/пароль базовой авторизации.
+- Запуск сервера:
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+- Открыть:
+  - Главная: http://127.0.0.1:8000/
+  - Админка: http://127.0.0.1:8000/admin (переадресует на /admin/gifts)
 
-This contains everything you need to run your app locally.
+Функционал
+- Публичная страница отображает подарки и последние анимации из Telegram.
+- Отправка подарка — укажите получателя (chat_id или @username) и опциональное сообщение.
+- Админ-панель защищена IP и basic auth, можно добавлять/редактировать/удалять подарки.
+- Импорт анимаций из Telegram через getUpdates; можно импортировать как подарки.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1cx34-mm-mnfIPxVh6H4-M76VTsNGhyyI
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Примечание безопасности
+- Не храните токены в репозитории. Используйте ENV.
