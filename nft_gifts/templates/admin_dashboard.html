@@ -1,0 +1,71 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Панель управления{% endblock %}
+
+{% block admin_content %}
+<h1>📊 Панель управления</h1>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">🎁</div>
+        <div class="stat-info">
+            <h3>{{ stats.total_gifts }}</h3>
+            <p>Всего подарков</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+            <h3>{{ stats.active_gifts }}</h3>
+            <p>Активных</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+            <h3>{{ stats.total_users }}</h3>
+            <p>Пользователей</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">💳</div>
+        <div class="stat-info">
+            <h3>{{ stats.total_purchases }}</h3>
+            <p>Покупок</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">📤</div>
+        <div class="stat-info">
+            <h3>{{ stats.total_sent }}</h3>
+            <p>Отправлено</p>
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h2>⚡ Быстрые действия</h2>
+    <div class="actions-grid">
+        <a href="/admin/gifts/add" class="action-card">
+            <span class="action-icon">➕</span>
+            <span class="action-title">Добавить подарок</span>
+        </a>
+        <a href="/admin/gifts" class="action-card">
+            <span class="action-icon">🎁</span>
+            <span class="action-title">Управление подарками</span>
+        </a>
+        <a href="/admin/users" class="action-card">
+            <span class="action-icon">👥</span>
+            <span class="action-title">Пользователи</span>
+        </a>
+        <a href="/admin/purchases" class="action-card">
+            <span class="action-icon">📊</span>
+            <span class="action-title">История покупок</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

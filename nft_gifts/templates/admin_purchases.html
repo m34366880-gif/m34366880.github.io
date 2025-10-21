@@ -1,0 +1,84 @@
+{% extends "admin_base.html" %}
+
+{% block title %}История покупок{% endblock %}
+
+{% block admin_content %}
+<h1>💳 История покупок и передач</h1>
+
+{% if purchases %}
+<div class="table-container">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Покупатель</th>
+                <th>Подарок</th>
+                <th>Получатель</th>
+                <th>Статус</th>
+                <th>Хеш транзакции</th>
+                <th>Дата покупки</th>
+                <th>Дата отправки</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in purchases %}
+            <tr>
+                <td>#{{ item.purchase.id }}</td>
+                <td>
+                    {% if item.user %}
+                    {{ item.user.first_name }}<br>
+                    <small>@{{ item.user.username or item.user.telegram_id }}</small>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.gift %}
+                    <strong>{{ item.gift.title }}</strong><br>
+                    <small>{{ item.gift.price }} TON</small>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.purchase.recipient_telegram_id %}
+                    <code>{{ item.purchase.recipient_telegram_id }}</code>
+                    {% else %}
+                    <span class="text-muted">Не отправлен</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.purchase.status == 'completed' %}
+                    <span class="badge badge-success">Куплен</span>
+                    {% elif item.purchase.status == 'sent' %}
+                    <span class="badge badge-info">Отправлен</span>
+                    {% else %}
+                    <span class="badge badge-warning">{{ item.purchase.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.purchase.transaction_hash %}
+                    <code>{{ item.purchase.transaction_hash[:16] }}...</code>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>{{ item.purchase.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td>
+                    {% if item.purchase.sent_at %}
+                    {{ item.purchase.sent_at.strftime('%d.%m.%Y %H:%M') }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>Пока нет покупок</p>
+</div>
+{% endif %}
+{% endblock %}

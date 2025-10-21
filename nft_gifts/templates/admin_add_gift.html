@@ -1,0 +1,56 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Добавить подарок{% endblock %}
+
+{% block admin_content %}
+<div class="page-header">
+    <h1>➕ Добавить новый NFT подарок</h1>
+    <a href="/admin/gifts" class="btn btn-secondary">← Назад</a>
+</div>
+
+<div class="form-container">
+    <form method="post" action="/admin/gifts/add" class="admin-form">
+        <div class="form-group">
+            <label for="title">Название <span class="required">*</span></label>
+            <input type="text" id="title" name="title" required placeholder="Например: Праздничный фейерверк">
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Описание <span class="required">*</span></label>
+            <textarea id="description" name="description" rows="4" required placeholder="Подробное описание подарка..."></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="gif_url">URL GIF-анимации <span class="required">*</span></label>
+            <input type="url" id="gif_url" name="gif_url" required placeholder="https://example.com/animation.gif">
+            <small>Прямая ссылка на GIF файл</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="file_id">Telegram File ID</label>
+            <input type="text" id="file_id" name="file_id" placeholder="AgACAgIAAxkBAAI...">
+            <small>Опционально: File ID из Telegram для быстрой загрузки</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="price">Цена (TON) <span class="required">*</span></label>
+            <input type="number" id="price" name="price" step="0.01" min="0" value="0" required>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 Сохранить подарок</button>
+            <a href="/admin/gifts" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<div class="help-box">
+    <h3>💡 Советы:</h3>
+    <ul>
+        <li>Используйте яркие и привлекательные GIF-анимации</li>
+        <li>Размер GIF не должен превышать 10 МБ для Telegram</li>
+        <li>Telegram File ID можно получить, загрузив файл в бота</li>
+        <li>Описание должно быть информативным и привлекательным</li>
+    </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ gift.title }} - NFT Gift Shop{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="gift-detail">
+        <div class="gift-detail-image">
+            <img src="{{ gift.gif_url }}" alt="{{ gift.title }}">
+        </div>
+        <div class="gift-detail-info">
+            <h1>{{ gift.title }}</h1>
+            <p class="gift-detail-description">{{ gift.description }}</p>
+            
+            <div class="gift-detail-price">
+                <span class="price-label">Цена:</span>
+                <span class="price-value">💰 {{ gift.price }} TON</span>
+            </div>
+            
+            <div class="gift-detail-status">
+                {% if gift.is_active %}
+                <span class="status-badge active">✅ Доступен</span>
+                {% else %}
+                <span class="status-badge inactive">❌ Недоступен</span>
+                {% endif %}
+            </div>
+            
+            <div class="gift-detail-actions">
+                <a href="https://t.me/your_nft_gift_bot?start=gift_{{ gift.id }}" class="btn btn-primary btn-large">
+                    🛒 Купить в Telegram
+                </a>
+                <a href="/" class="btn btn-secondary">← Вернуться к каталогу</a>
+            </div>
+            
+            <div class="gift-detail-meta">
+                <p><strong>ID подарка:</strong> #{{ gift.id }}</p>
+                <p><strong>Добавлен:</strong> {{ gift.created_at.strftime('%d.%m.%Y') }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
